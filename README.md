@@ -7,13 +7,6 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
 </p>
 
-## Installation
-
-    $ git clone https://github.com/syslabtechnologies/StarWarsAPI
-    $ cd StarWarsAPI
-    $ npm install
-    $ npm run rebuild
-
 ## HOWTO, Details are as follows:
 
 1. Open CMD run <code>git clone https://github.com/syslabtechnologies/StarWarsAPI</code>
