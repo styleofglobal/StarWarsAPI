@@ -1,4 +1,4 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<p align="center"><a href="#" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 <p align="center">
 <a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
@@ -6,6 +6,25 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
 </p>
+
+## Installation
+
+    $ git clone https://github.com/syslabtechnologies/StarWarsAPI
+    $ cd StarWarsAPI
+    $ npm install
+    $ npm run rebuild
+
+## HOWTO, Details are as follows:
+
+1. Open CMD run <code>git clone https://github.com/syslabtechnologies/StarWarsAPI</code>
+2. cd StarWarsAPI
+3. Run the command <code>composer install</code>
+4. After successful completing the step 3, create a database "starwarsapi" and update mysql connection details in ".env" file.
+5. Run the command <code>php artisan migrate:fresh --seed</code> & <code>php artisan serv</code> to run the application as php development server.
+6. Login from the web is required to fetch movies data from TMDB, default login details are: email: styleofglobal@gmail.com & password: smallworldfs.
+7. run this command if data is not showing after first login from the web. <code>php artisan cache:clear<code>
+
+Depending on your operating system, you will need to install:
 
 ## About Laravel
 
