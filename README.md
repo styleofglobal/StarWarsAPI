@@ -9,7 +9,7 @@
 
 ## HOWTO, Details are as follows:
 
-1. Open CMD run <code>git clone https://github.com/syslabtechnologies/StarWarsAPI</code>
+1. Open CMD run <code>git clone https://github.com/styleofglobal/StarWarsAPI</code>
 2. cd StarWarsAPI
 3. Run the command <code>composer install</code>
 4. After successful completing the step 3, create a database "starwarsapi" and update mysql connection details in ".env" file.
