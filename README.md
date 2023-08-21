@@ -17,7 +17,9 @@
 6. Login from the web is required to fetch movies data from TMDB, default login details are: email: styleofglobal@gmail.com & password: smallworldfs.
 7. run this command if data is not showing after first login from the web. <code>php artisan cache:clear<code>
 
-Depending on your operating system, you will need to install:
+For APIs details please check file "API Details.xlsx".
+
+For Postman usage please check file "smallworldfs.postman_collection.json".
 
 ## About Laravel
 
