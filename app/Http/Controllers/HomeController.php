@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 
+use App\Services\MovieAPIService;
 
-use Illuminate\Support\Facades\DB;
 use App\Models\Movie;
 use App\Models\Production;
 use App\Models\Genre;
@@ -35,99 +33,17 @@ class HomeController extends Controller
         $APP_TMDB_SYNC = env('APP_TMDB_SYNC');
         if ($APP_TMDB_SYNC == 0) {
 
-            $apiKey = env('TMDB_API_KEY');
+            $moviesApiService = app(MovieAPIService::class);
+            $movie_added = $moviesApiService->syncMovies();
 
-            $response = Http::get("https://api.themoviedb.org/3/collection/10-star-wars-collection", [
-                'api_key' => $apiKey,
-            ]);
+            if (!empty($movie_added)) {
+                $this->setEnv('APP_TMDB_SYNC', '1');
 
-            $movies = $response->json();
+                return redirect()->route('welcome')->with('success', count($movie_added) . ' New Movies added successfully.');
+            } else {
 
-            $i = 0;
-            $movie_added = array();
-            foreach ($movies['parts'] as $movie) {
-
-                $movies['parts'][$i]['adult'] = (!empty($movie['adult'])) ? 1 : 0;
-                $movies['parts'][$i]['genre_ids'] = implode(",", $movie['genre_ids']);
-                $movies['parts'][$i]['video'] = (!empty($movie['video'])) ? $movie['video'] : '';
-
-                $movie_new = Movie::find($movie['id']);
-
-                if (empty($movie_new)) {
-                    $movie_added[]['new'] = DB::table('movies')->insert($movies['parts'][$i]);
-
-
-                    $details_response = Http::get("https://api.themoviedb.org/3/movie/" . $movie['id'], [
-                        'api_key' => $apiKey,
-                    ]);
-
-                    $movie_details = $details_response->json();
-
-                    $pi = 0;
-                    $production_ids = array();
-                    foreach ($movie_details['production_companies'] as $production) {
-
-                        $production_ids[] = (!empty($production['id'])) ? $production['id'] : '0';
-
-                        $new_production = Production::find($production['id']);
-
-                        if (empty($new_production)) {
-                            $production_new[] = DB::table('production')->insert($movie_details['production_companies'][$pi]);
-                        }
-
-                        $pi++;
-                    }
-
-
-                    $update_movie = Movie::find($movie_details['id']);
-                    $update_movie->budget = $movie_details['budget'] ? $movie_details['budget'] : '';
-                    $update_movie->tagline = $movie_details['tagline'] ? $movie_details['tagline'] : '';
-                    $update_movie->status = $movie_details['status'] ? $movie_details['status'] : '';
-                    $update_movie->runtime = $movie_details['runtime'] ? $movie_details['runtime'] : 0;
-                    $update_movie->revenue = $movie_details['revenue'] ? $movie_details['revenue'] : 0;
-                    $update_movie->production_id = implode(",", $production_ids);
-                    $update_movie->save();
-
-                    $gi = 0;
-                    foreach ($movie_details['genres'] as $genre) {
-
-                        $is_genre = Genre::find($genre['id']);
-
-                        if (empty($is_genre)) {
-                            $genre_new[] = DB::table('genres')->insert($movie_details['genres'][$gi]);
-                        }
-
-                        $gi++;
-                    }
-                }
-
-                $i++;
+                return redirect()->route('welcome')->with('danger', 'Movies data not synced successfully.');
             }
-
-            $this->setEnv('APP_TMDB_SYNC', '1');
-
-            return redirect()->route('welcome')->with('success', count($movie_added) . ' New Movies added successfully.');
-        }
-
-        $search = $request->input('search');
-
-        $query = Movie::query();
-
-        if ($search) {
-            $query->where('title', 'LIKE', "%$search%");
-        }
-
-        $cacheKey = 'db_movies_data';
-
-        // Check if the data is cached
-        if (Cache::has($cacheKey)) {
-            $movies = Cache::get($cacheKey);
-        } else {
-
-            $movies = $query->get();
-
-            // Cache the response for a specific time
-            Cache::put($cacheKey, $movies, now()->addMinutes(60));
         }
 
         return view('home');
@@ -141,7 +57,6 @@ class HomeController extends Controller
         if (Cache::has($cacheKey)) {
             $movie_info = Cache::get($cacheKey);
         } else {
-
             $movie_info = Movie::find($id);
 
             // Cache the response for a specific time

@@ -7,7 +7,8 @@ use App\Models\Production;
 use App\Models\Genre;
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
+use App\Services\MovieAPIService;
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 
@@ -45,12 +46,31 @@ class MovieController extends Controller
         return response()->json(array('results' => $movies), 200);
     }
 
-    // public function index()
+    // public function index2(Request $request)
     // {
-    //     $movies = Movie::all();
+    //     // $movies = Movie::all();
+    //     $search = $request->input('search');
+
+    //     $query = Movie::query();
+
+    //     if ($search) {
+    //         $query->where('title', 'LIKE', "%$search%");
+    //     }
+
+    //     $cacheKey = 'db_movies_data';
+
+    //     // Check if the data is cached
+    //     if (Cache::has($cacheKey)) {
+    //         $movies = Cache::get($cacheKey);
+    //     } else {
+
+    //         $movies = $query->get();
+
+    //         // Cache the response for a specific time
+    //         Cache::put($cacheKey, $movies, now()->addMinutes(60));
+    //     }
     //     return response()->json($movies, 200);
     // }
-
 
     public function store(Request $request)
     {
@@ -85,7 +105,6 @@ class MovieController extends Controller
 
         $genres = Genre::select("*")->whereIn('id', explode(',', $movie_info['genre_ids']))->get();
         $productions = Production::select("*")->whereIn('id', explode(',', $movie_info['production_id']))->get();
-
 
         return response()->json([
             'movie' => $movie_info,
@@ -144,27 +163,10 @@ class MovieController extends Controller
         }
     }
 
-
     public function fetchMoviesFromTMDb(Request $request)
     {
-        $apiKey = env('TMDB_API_KEY');
-        $cacheKey = 'tmdb_movies';
-
-        // Check if the data is cached
-        if (Cache::has($cacheKey)) {
-            $movies = Cache::get($cacheKey);
-        } else {
-            // $response = Http::get("https://api.themoviedb.org/3/movie/popular", [
-            // $response = Http::get("https://api.themoviedb.org/3/list/8136", [ //The Entire Star Wars Collection
-            $response = Http::get("https://api.themoviedb.org/3/collection/10-star-wars-collection", [
-                'api_key' => $apiKey,
-            ]);
-
-            $movies = $response->json();
-
-            // Cache the response for a specific time
-            Cache::put($cacheKey, $movies, now()->addMinutes(60));
-        }
+        $moviesApiService = app(MovieAPIService::class);
+        $movies = $moviesApiService->getMovies();
 
         // Store $movies in your database or process the data as needed
         return response()->json($movies, 200);
@@ -173,48 +175,21 @@ class MovieController extends Controller
 
     public function fetchMovieFromTMDb(Request $request, $id)
     {
-        $apiKey = env('TMDB_API_KEY');
-        $cacheKey = 'tmdb_movie';
-
-        // Check if the data is cached
-        if (Cache::has($cacheKey)) {
-            $movie_info = Cache::get($cacheKey);
-        } else {
-            $response = Http::get("https://api.themoviedb.org/3/movie/" . $id, [
-                'api_key' => $apiKey,
-            ]);
-
-            $movie_info = $response->json();
-
-            // Cache the response for a specific time
-            Cache::put($cacheKey, $movie_info, now()->addMinutes(60));
-        }
+        $moviesApiService = app(MovieAPIService::class);
+        $movie_info = $moviesApiService->getMovie($id);
 
         return response()->json($movie_info, 200);
     }
 
     public function fetchMoviesFromswapi(Request $request)
     {
-        $cacheKey = 'swapi_movies';
+        $moviesApiService = app(MovieAPIService::class);
+        $movies = $moviesApiService->swapiMovies();
 
-        // Check if the data is cached
-        if (Cache::has($cacheKey)) {
-            $movies = Cache::get($cacheKey);
-
+        if ($movies) {
             return response()->json($movies);
         } else {
-            $response = Http::get('https://swapi.dev/api/films');
-
-            if ($response->successful()) {
-
-                $movies = $response->json();
-
-                // Cache the response for a specific time
-                Cache::put($cacheKey, $movies, now()->addMinutes(60));
-                return response()->json($movies);
-            } else {
-                return response()->json(['message' => 'Failed to fetch Star Wars movies'], 500);
-            }
+            return response()->json(['message' => 'Failed to fetch Star Wars movies'], 500);
         }
     }
 }
