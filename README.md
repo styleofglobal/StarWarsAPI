@@ -15,7 +15,9 @@
 4. After successful completing the step 3, create a database "starwarsapi" and update mysql connection details in ".env" file.
 5. Run the command <code>php artisan migrate:fresh --seed</code> & <code>php artisan serv</code> to run the application as php development server.
 6. Login from the web is required to fetch movies data from TMDB, default login details are: email: styleofglobal@gmail.com & password: smallworldfs.
-7. run this command if data is not showing after first login from the web. <code>php artisan cache:clear<code>
+7. run this command if data is not showing after first login from the web. 
+    $ php artisan cache:clear
+    $
 
 ## Test-Driven Development (TDD) approach
 Run the command <code>php artisan test</code>
