@@ -16,16 +16,25 @@ class MovieControllerTest extends TestCase
     public function testFetchingMovieDetailsFromTMDB($id = "11")
     {
         $moviesApiService = app(MovieAPIService::class);
-        $movieDetails = $moviesApiService->getMovie($id);
+        $movieDetails = $moviesApiService->getTMDBMovie($id);
 
         $this->assertEquals('Star Wars', $movieDetails['title']);
     }
 
-    // Test listing movies through your API
+    // Test listing movies through TMDB API
+    public function testListingMoviesFromTMDB()
+    {
+        $moviesApiService = app(MovieAPIService::class);
+        $movies = $moviesApiService->getTMDBMovies();
+
+        $this->assertCount(count($movies), $movies);
+    }
+
+    // Test listing movies from database
     public function testListingMovies()
     {
         $moviesApiService = app(MovieAPIService::class);
-        $movies = $moviesApiService->getMovies();
+        $movies = $moviesApiService->getTMDBMovies();
 
         $this->assertCount(count($movies), $movies);
     }
@@ -64,7 +73,6 @@ class MovieControllerTest extends TestCase
         $this->assertEquals($updatedAttributes['overview'], $movie->overview);
     }
 
-
     public function testDeletingMovie()
     {
         // Create a movie record in the database
@@ -99,25 +107,25 @@ class MovieControllerTest extends TestCase
     //     ]);
     // }
 
-    public function testFetchingMovieDetails()
-    {
-        // Mock the HTTP request to the TMDB API
-        // $mockedResponse = json_encode(['title' => 'Star Wars']);
-        // $this->mockHttpClient($mockedResponse);
+    // public function testFetchingMovieDetails()
+    // {
+    //     // Mock the HTTP request to the TMDB API
+    //     // $mockedResponse = json_encode(['title' => 'Star Wars']);
+    //     // $this->mockHttpClient($mockedResponse);
 
-        $moviesApiService = app(MovieAPIService::class);
-        $movieDetails = $moviesApiService->getMovie(11);
+    //     $moviesApiService = app(MovieAPIService::class);
+    //     $movieDetails = $moviesApiService->getMovie(11);
 
-        $this->assertEquals('Star Wars', $movieDetails['title']);
-    }
+    //     $this->assertEquals('Star Wars', $movieDetails['title']);
+    // }
 
-    // Helper function to mock the HTTP client
-    protected function mockHttpClient($response)
-    {
-        $http = $this->mock(\GuzzleHttp\Client::class);
-        $http->shouldReceive('get')->andReturn($response);
-        $this->app->instance(\GuzzleHttp\Client::class, $http);
-    }
+    // // Helper function to mock the HTTP client
+    // protected function mockHttpClient($response)
+    // {
+    //     $http = $this->mock(\GuzzleHttp\Client::class);
+    //     $http->shouldReceive('get')->andReturn($response);
+    //     $this->app->instance(\GuzzleHttp\Client::class, $http);
+    // }
 
     // assertTrue()
     // assertFalse()

@@ -8,17 +8,147 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Movie;
 use App\Models\Production;
 use App\Models\Genre;
+use Illuminate\Support\Arr;
 
 class MovieAPIService
 {
     protected $apiKey;
+    protected $cache_min;
 
     public function __construct()
     {
         $this->apiKey = env('TMDB_API_KEY');
+        $this->cache_min = env('CACHE_MIN');
     }
 
-    public function getMovies()
+    public function getMovies($request)
+    {
+        $search = $request->input('search');
+
+        $query = Movie::query();
+
+        if ($search) {
+            $query->where('title', 'LIKE', "%$search%");
+        }
+
+        $cacheKey = 'db_movies_data';
+
+        // Check if the data is cached
+        if (Cache::has($cacheKey)) {
+            $movies = Cache::get($cacheKey);
+        } else {
+
+            $movies = $query->get();
+
+            // Cache the response for a specific time
+            Cache::put($cacheKey, $movies, now()->addMinutes($this->cache_min));
+        }
+
+        return $movies;
+    }
+
+    public function getMovie($id)
+    {
+        $cacheKey = 'movie_id_' . $id . '_info';
+
+        // Check if the data is cached
+        if (Cache::has($cacheKey)) {
+            $movie_details = Cache::get($cacheKey);
+        } else {
+            $movie_info = Movie::find($id);
+            $genres = Genre::select("*")->whereIn('id', explode(',', $movie_info['genre_ids']))->get();
+            $productions = Production::select("*")->whereIn('id', explode(',', $movie_info['production_id']))->get();
+
+            $movie_details = array(
+                'movie' => $movie_info,
+                'genres' => (!empty($genres)) ? $genres : array(),
+                'productions' => (!empty($productions)) ? $productions : array()
+            );
+
+            // Cache the response for a specific time
+            Cache::put($cacheKey, $movie_details, now()->addMinutes($this->cache_min));
+        }
+
+        return $movie_details;
+    }
+
+    public function editMovie($request, $id)
+    {
+        // $movie = Movie::where('id', $id)->firstOrFail();
+        $movie = Movie::find($id);
+        $genres = Genre::select("*")->get();
+        $productions = Production::select("*")->get();
+
+        $selectedID = $request->input('genre_ids');
+        $productionID = $request->input('production_id');
+
+        $movie_edit_details = array(
+            'movie' => $movie,
+            'genres' => (!empty($genres)) ? $genres : array(),
+            'productions' => (!empty($productions)) ? $productions : array(),
+            'selectedID' => $selectedID,
+            'productionID' => $productionID
+        );
+
+        return $movie_edit_details;
+    }
+
+    public function updateMovie($request, $id)
+    {
+        if (!empty($request) && !empty($id)) {
+
+            $movie = Movie::find($id);
+
+            !empty($request->title) ? $movie->title = $request->title : '';
+            !empty($request->original_title) ? $movie->original_title = $request->original_title : '';
+            !empty($request->original_language) ? $movie->original_language = $request->original_language : '';
+            !empty($request->popularity) ? $movie->popularity = $request->popularity : '';
+            !empty($request->release_date) ? $movie->release_date = $request->release_date : '';
+            !empty($request->vote_average) ? $movie->vote_average = $request->vote_average : '';
+            !empty($request->vote_count) ? $movie->vote_count = $request->vote_count : '';
+            !empty($request->media_type) ? $movie->media_type = $request->media_type : '';
+            !empty($request->status) ? $movie->status = $request->status : '';
+            !empty($request->budget) ? $movie->budget = $request->budget : '';
+            !empty($request->revenue) ? $movie->revenue = $request->revenue : '';
+            !empty($request->runtime) ? $movie->runtime = $request->runtime : '';
+            !empty($request->video) ? $movie->video = $request->video : '';
+            !empty($request->adult) ? $movie->adult = $request->adult : '';
+            !empty($request->poster_path) ? $movie->poster_path = $request->poster_path : '';
+            !empty($request->backdrop_path) ? $movie->backdrop_path = $request->backdrop_path : '';
+            !empty($request->genre_ids) ? implode(",", $request->genre_ids) : '';
+            !empty($request->production_id) ? implode(",", $request->production_id) : '';
+            !empty($request->tagline) ? $movie->tagline = $request->tagline : '';
+            !empty($request->overview) ? $movie->overview = $request->overview : '';
+
+            return $movie->save();
+        } else {
+
+            return null; // Handle error
+        }
+    }
+
+    public function createMovie($request)
+    {
+        $id =  Movie::create($request->all());
+        if (!empty($id)) {
+            return $id;
+        } else {
+
+            return null; // Handle error
+        }
+    }
+
+    public function deleteMovie($id)
+    {
+        if (!empty($id)) {
+            return Movie::destroy($id);
+        } else {
+
+            return null; // Handle error
+        }
+    }
+
+    public function getTMDBMovies()
     {
         $cacheKey = 'tmdb_movies';
 
@@ -45,7 +175,7 @@ class MovieAPIService
         }
     }
 
-    public function getMovie($movieId)
+    public function getTMDBMovie($movieId)
     {
         $cacheKey = 'tmdb_movie_' . $movieId;
 

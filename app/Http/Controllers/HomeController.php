@@ -55,49 +55,17 @@ class HomeController extends Controller
 
     public function show(Request $request, $id)
     {
-        $cacheKey = 'movie_id_' . $id . '_info';
-
-        // Check if the data is cached
-        if (Cache::has($cacheKey)) {
-            $movie_details = Cache::get($cacheKey);
-        } else {
-            $movie_info = Movie::find($id);
-            $genres = Genre::select("*")->whereIn('id', explode(',', $movie_info['genre_ids']))->get();
-            $productions = Production::select("*")->whereIn('id', explode(',', $movie_info['production_id']))->get();
-
-            $movie_details = [
-                'movie' => $movie_info,
-                'genres' => (!empty($genres)) ? $genres : array(),
-                'productions' => (!empty($productions)) ? $productions : array()
-            ];
-
-            // Cache the response for a specific time
-            Cache::put($cacheKey, $movie_details, now()->addMinutes($this->cache_min));
-        }
-
+        $movie_details = $this->movieAPIService->getMovie($id);
         return view('movies.movie', $movie_details);
     }
 
 
     public function edit(Request $request, $id)
     {
-        // $movie = Movie::where('id', $id)->firstOrFail();
-        $movie = Movie::find($id);;
-        $genres = Genre::select("*")->get();
-        $productions = Production::select("*")->get();
+        
+        $movie_edit_details = $this->movieAPIService->editMovie($request,$id);
 
-        $selectedID = $request->input('genre_ids');
-        $productionID = $request->input('production_id');
-        return view(
-            'movies.edit',
-            [
-                'movie' => $movie,
-                'genres' => (!empty($genres)) ? $genres : array(),
-                'productions' => (!empty($productions)) ? $productions : array(),
-                'selectedID' => $selectedID,
-                'productionID' => $productionID
-            ]
-        );
+        return view('movies.edit',$movie_edit_details);
     }
 
     function setEnv($name, $value)
