@@ -9,8 +9,8 @@ class Genre extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
-
+    // protected $fillable = ['name'];
+    protected $guarded = [];
     // Define relationships and methods here
     /**
      * Get the post that owns the comment.

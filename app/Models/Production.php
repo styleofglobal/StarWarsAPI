@@ -9,8 +9,8 @@ class Production extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'director', 'release_year'];
-
+    // protected $fillable = ['title', 'director', 'release_year'];
+    protected $guarded = [];
     protected $table = "production";
 
     // Define relationships and methods here

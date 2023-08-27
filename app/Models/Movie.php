@@ -9,8 +9,8 @@ class Movie extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'original_title', 'original_language', 'popularity', 'release_date', 'vote_average', 'vote_count', 'media_type', 'status', 'budget', 'revenue', 'runtime', 'video', 'adult', 'poster_path', 'backdrop_path', 'genre_ids', 'production_id', 'tagline', 'overview'];
-
+    // protected $fillable = ['title', 'original_title', 'original_language', 'popularity', 'release_date', 'vote_average', 'vote_count', 'media_type', 'status', 'budget', 'revenue', 'runtime', 'video', 'adult', 'poster_path', 'backdrop_path', 'genre_ids', 'production_id', 'tagline', 'overview'];
+    protected $guarded = [];
     // Define relationships and methods here
 
     // /**

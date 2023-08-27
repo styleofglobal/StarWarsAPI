@@ -12,8 +12,8 @@ class MovieControllerTest extends TestCase
     public function testFetchingMovieDetails()
     {
         // Mock the HTTP request to the TMDB API
-        $mockedResponse = json_encode(['title' => 'Star Wars']);
-        $this->mockHttpClient($mockedResponse);
+        // $mockedResponse = json_encode(['title' => 'Star Wars']);
+        // $this->mockHttpClient($mockedResponse);
 
         $moviesApiService = app(MovieAPIService::class);
         $movieDetails = $moviesApiService->getMovie(11);

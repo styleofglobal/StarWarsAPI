@@ -4,7 +4,6 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 use App\Models\Movie;
 use App\Models\Production;
@@ -106,7 +105,8 @@ class MovieAPIService
                 $movie_new = Movie::find($movie['id']);
 
                 if (empty($movie_new)) {
-                    $movie_added[]['new'] = DB::table('movies')->insert($movies['parts'][$i]);
+                    $movie_added[]['new'] = Movie::create($movies['parts'][$i]);
+                    // $movie_added[]['new'] = DB::table('movies')->insert($movies['parts'][$i]);
 
 
                     $details_response = Http::get("https://api.themoviedb.org/3/movie/" . $movie['id'], [
@@ -124,12 +124,12 @@ class MovieAPIService
                         $new_production = Production::find($production['id']);
 
                         if (empty($new_production)) {
-                            $production_new[] = DB::table('production')->insert($movie_details['production_companies'][$pi]);
+                            $production_new[] = Production::create($movie_details['production_companies'][$pi]);
+                            // $production_new[] = DB::table('production')->insert($movie_details['production_companies'][$pi]);
                         }
 
                         $pi++;
                     }
-
 
                     $update_movie = Movie::find($movie_details['id']);
                     $update_movie->budget = $movie_details['budget'] ? $movie_details['budget'] : '';
@@ -146,7 +146,8 @@ class MovieAPIService
                         $is_genre = Genre::find($genre['id']);
 
                         if (empty($is_genre)) {
-                            $genre_new[] = DB::table('genres')->insert($movie_details['genres'][$gi]);
+                            $genre_new[] = Genre::create($movie_details['genres'][$gi]);
+                            // $genre_new[] = DB::table('genres')->insert($movie_details['genres'][$gi]);
                         }
 
                         $gi++;
