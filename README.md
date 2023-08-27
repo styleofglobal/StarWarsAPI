@@ -17,9 +17,36 @@
 6. Login from the web is required to fetch movies data from TMDB, default login details are: email: styleofglobal@gmail.com & password: smallworldfs.
 7. run this command if data is not showing after first login from the web. <code>php artisan cache:clear<code>
 
+## Test-Driven Development (TDD) approach
+Run the command <code>php artisan test</code>
+Warning: TTY mode is not supported on Windows platform.
+
+    $ PASS  Tests\Unit\ExampleTest
+    $ ✓ basic test
+    $ 
+    $ PASS  AuthenticationTest
+    $ ✓ login screen can be rendered
+    $ ✓ users can authenticate using the login screen
+    $ ✓ users can not authenticate with invalid password
+    $ 
+    $ PASS  Tests\Feature\MovieControllerTest
+    $ ✓ fetching movie details from t m d b
+    $ ✓ listing movies
+    $ ✓ create movies
+    $ ✓ updating movie
+    $ ✓ deleting movie
+    $ ✓ fetching movie details
+    $ 
+    $ PASS  RegistrationTest
+    $ ✓ registration screen can be rendered
+    $ ✓ new users can register
+    $ 
+    $ Tests:  12 passed
+    $ Time:   7.93s
+    $ 
+
 For URI/API List please check file API Details.xlsx.
 For Postman API export file please check file smallworldfs.postman_collection.json.
-
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
