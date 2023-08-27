@@ -36,3 +36,9 @@ Route::delete('/api/v1/delete/{movie}', [App\Http\Controllers\MovieController::c
 Route::get('/tmdb/movies', [App\Http\Controllers\MovieController::class, 'fetchMoviesFromTMDb'])->middleware(['auth'])->name('tmdb.movies');
 Route::get('/tmdb/movies/{movie}', [App\Http\Controllers\MovieController::class, 'fetchMovieFromTMDb'])->middleware(['auth'])->name('fetch.movie');
 Route::get('/swapi/movies', [App\Http\Controllers\MovieController::class, 'fetchMoviesFromswapi'])->middleware(['auth'])->name('swapi.movies');
+
+
+// For Test Purpose
+Route::get('/api/movies', [App\Http\Controllers\MovieController::class, 'index'])->name('testmovies');
+Route::patch('/api/movies/{movie}', [App\Http\Controllers\MovieController::class, 'update'])->name('movies.testupdate');
+Route::delete('/api/movies/{movie}', [App\Http\Controllers\MovieController::class, 'destroy'])->name('movies.testdelete');

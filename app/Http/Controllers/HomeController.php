@@ -18,9 +18,14 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
+
+    protected $movieAPIService;
+    protected $cache_min;
+
+    public function __construct(MovieAPIService $movieAPIService)
     {
-        // $this->middleware('auth');
+        $this->movieAPIService = $movieAPIService;
+        $this->cache_min = env('CACHE_MIN');
     }
 
     /**
@@ -33,8 +38,7 @@ class HomeController extends Controller
         $APP_TMDB_SYNC = env('APP_TMDB_SYNC');
         if ($APP_TMDB_SYNC == 0) {
 
-            $moviesApiService = app(MovieAPIService::class);
-            $movie_added = $moviesApiService->syncMovies();
+            $movie_added = $this->movieAPIService->syncMovies();
 
             if (!empty($movie_added)) {
                 $this->setEnv('APP_TMDB_SYNC', '1');
@@ -51,29 +55,27 @@ class HomeController extends Controller
 
     public function show(Request $request, $id)
     {
-        $cacheKey = 'db_movie_info';
+        $cacheKey = 'movie_id_' . $id . '_info';
 
         // Check if the data is cached
         if (Cache::has($cacheKey)) {
-            $movie_info = Cache::get($cacheKey);
+            $movie_details = Cache::get($cacheKey);
         } else {
             $movie_info = Movie::find($id);
+            $genres = Genre::select("*")->whereIn('id', explode(',', $movie_info['genre_ids']))->get();
+            $productions = Production::select("*")->whereIn('id', explode(',', $movie_info['production_id']))->get();
 
-            // Cache the response for a specific time
-            Cache::put($cacheKey, $movie_info, now()->addMinutes(60));
-        }
-
-        $genres = Genre::select("*")->whereIn('id', explode(',', $movie_info['genre_ids']))->get();
-        $productions = Production::select("*")->whereIn('id', explode(',', $movie_info['production_id']))->get();
-
-        return view(
-            'movies.movie',
-            [
+            $movie_details = [
                 'movie' => $movie_info,
                 'genres' => (!empty($genres)) ? $genres : array(),
                 'productions' => (!empty($productions)) ? $productions : array()
-            ]
-        );
+            ];
+
+            // Cache the response for a specific time
+            Cache::put($cacheKey, $movie_details, now()->addMinutes($this->cache_min));
+        }
+
+        return view('movies.movie', $movie_details);
     }
 
 

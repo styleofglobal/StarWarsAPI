@@ -162,7 +162,7 @@ class MovieAPIService
         }
     }
 
-    public function swapiMovies($movieId)
+    public function swapiMovies()
     {
         $cacheKey = 'swapi_movies';
 
