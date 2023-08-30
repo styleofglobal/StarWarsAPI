@@ -17,9 +17,8 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Muhammad Tahir Irshad',
-            'email' => 'styleofglobal@gmail.com',
-            // 'mobile' => '923322184182',
-            'password' => Hash::make('smallworldfs')
+            'email' => 'styleofglobal1@gmail.com',
+            'password' => Hash::make('123456')
         ]);
     }
 }
